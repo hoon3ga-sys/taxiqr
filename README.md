@@ -1,144 +1,111 @@
-# taxiqr
-taxiqrrr
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>계좌/페이팔 정보 — 복사 & QR</title>
+  <title>계좌/PayPal 복사 & QR</title>
   <style>
-    body{font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',Arial; background:#f6f7fb; color:#111; padding:24px}
-    .card{background:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(20,20,40,0.06);padding:18px;margin-bottom:16px;display:flex;gap:16px;align-items:center}
-    .meta{flex:1}
-    h3{margin:0 0 6px;font-size:18px}
-    .label{font-size:13px;color:#666;margin-bottom:6px}
-    .value-row{display:flex;gap:8px;align-items:center}
-    input.value{font-size:16px;padding:10px;border:1px solid #e6e8ef;border-radius:8px;min-width:220px}
-    button.copy{padding:10px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;cursor:pointer}
-    .hint{font-size:13px;color:#666;margin-top:8px}
-    .qr{width:110px;height:110px;flex-shrink:0;border-radius:8px;border:1px solid #eee;display:flex;align-items:center;justify-content:center;background:#fff}
-    .toaster{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;opacity:0;transition:opacity .18s;pointer-events:none}
-    .toaster.show{opacity:1;pointer-events:auto}
-    .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-    .small{font-size:13px;color:#444}
-    .btn-ghost{padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;background:transparent;cursor:pointer}
+    body{font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background:#f7f7f8; color:#111; padding:20px;}
+    .card{background:#fff; border-radius:12px; box-shadow:0 6px 18px rgba(16,24,40,0.06); padding:18px; max-width:520px; margin:18px auto;}
+    h1{font-size:18px; margin:0 0 12px;}
+    .row{display:flex; gap:14px; align-items:center;}
+    .info{flex:1;}
+    .label{font-size:13px; color:#666; margin-bottom:6px;}
+    .value{font-size:16px; font-weight:600; word-break:break-all;}
+    button.copy{margin-top:10px; padding:8px 12px; border:0; border-radius:8px; cursor:pointer; background:#111; color:#fff; font-weight:600;}
+    .qr{width:120px; height:120px; border-radius:8px; background:#fff; padding:6px; box-sizing:border-box;}
+    .hint{font-size:12px; color:#666; margin-top:8px;}
+    .toast{position:fixed; right:20px; bottom:20px; background:#111; color:#fff; padding:10px 14px; border-radius:10px; opacity:0; transform:translateY(12px); transition:all .25s; pointer-events:none;}
+    .toast.show{opacity:1; transform:translateY(0); pointer-events:auto;}
+    .small{font-size:13px; color:#444;}
+    footer{margin-top:18px; font-size:12px; color:#777; text-align:center;}
+    /* 모바일도 보기 좋게 */
+    @media (max-width:480px){
+      .row{flex-direction:row; gap:10px;}
+      .qr{width:96px; height:96px;}
+    }
   </style>
 </head>
 <body>
-  <h2>QR 옵션: 텍스트 QR / 페이지 URL QR (택시용)</h2>
-  <div class="controls">
-    <div class="small">웹페이지 URL (호스팅 후 여기에 넣으세요):</div>
-    <input id="page-url" placeholder="https://your-domain.example/qrpage.html" style="padding:8px;border-radius:8px;border:1px solid #e6e8ef;min-width:320px" />
-    <button class="btn-ghost" id="apply-url">URL로 QR 만들기</button>
-    <button class="btn-ghost" id="use-text">텍스트 QR로 복원</button>
-  </div>
 
   <div class="card">
-    <div class="meta">
-      <h3>■ 카카오뱅크 — 김태훈</h3>
-      <div class="label">계좌번호</div>
-      <div class="value-row">
-        <input class="value" id="kb-account" readonly value="3333015714391" />
-        <button class="copy" data-target="kb-account">복사하기</button>
+    <h1>■ 카카오뱅크 — 김태훈</h1>
+    <div class="row">
+      <div class="info">
+        <div class="label">계좌번호</div>
+        <div id="kb-account" class="value">3333015714391</div>
+        <button class="copy" data-copy="3333015714391">계좌번호 복사하기</button>
+        <div class="hint">복사한 값을 붙여넣기 하세요 (예: 인터넷뱅킹, 카카오톡 등)</div>
       </div>
-      <div class="hint">(복사해서 붙여넣기)</div>
-    </div>
-    <div class="qr">
-      <img id="qr-kb" alt="QR: 카카오뱅크 계좌" src="" style="width:100%;height:100%;object-fit:cover;border-radius:8px" />
+      <div>
+        <img id="qr-kb" class="qr" alt="KakaoBank QR">
+      </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="meta">
-      <h3>■ PayPal</h3>
-      <div class="label">email</div>
-      <div class="value-row">
-        <input class="value" id="pp-email" readonly value="hoon3ga@naver.com" />
-        <button class="copy" data-target="pp-email">Copy</button>
+    <h1>■ PayPal</h1>
+    <div class="row">
+      <div class="info">
+        <div class="label">Email</div>
+        <div id="pp-email" class="value">hoon3ga@naver.com</div>
+        <button class="copy" data-copy="hoon3ga@naver.com">이메일 복사하기</button>
+        <div class="hint">PayPal 송금 시 이메일을 붙여넣기 하세요.</div>
       </div>
-      <div class="hint">(Copy and paste)</div>
-    </div>
-    <div class="qr">
-      <img id="qr-pp" alt="QR: PayPal 이메일" src="" style="width:100%;height:100%;object-fit:cover;border-radius:8px" />
+      <div>
+        <img id="qr-pp" class="qr" alt="PayPal QR">
+      </div>
     </div>
   </div>
 
-  <div class="toaster" id="toaster">복사되었습니다</div>
+  <footer>이 파일을 메모장에 붙여넣고 .html로 저장한 뒤 브라우저로 열면 됩니다.</footer>
+
+  <div id="toast" class="toast">복사되었습니다!</div>
 
   <script>
-    // QR 이미지 생성: 외부 API 사용
-    function makeQrSrc(data){
-      return 'https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=' + encodeURIComponent(data);
+    // QR 이미지 만들기 (Google Chart API 사용)
+    function makeQR(text, size = 240){
+      var d = encodeURIComponent(text);
+      // Google Chart QR API: chart.googleapis.com/chart?cht=qr&chs=SIZExSIZE&chl=...
+      // 여기서는 보안상 HTTPS 사용
+      return "https://chart.googleapis.com/chart?cht=qr&chs=" + size + "x" + size + "&chl=" + d + "&chld=L|1";
     }
 
-    // 기본: 텍스트 QR (계좌/이메일 텍스트 자체를 QR로 인코딩)
-    const kbText = '카카오뱅크 김태훈\n계좌번호: 3333015714391';
-    const ppText = 'PayPal\nemail: hoon3ga@naver.com';
+    // 초기값(이미 제공한 텍스트)
+    const kbText = "KakaoBank 김태훈\n계좌번호: 3333015714391";
+    const ppText = "PayPal\nEmail: hoon3ga@naver.com";
 
-    const elKb = document.getElementById('qr-kb');
-    const elPp = document.getElementById('qr-pp');
+    document.getElementById("qr-kb").src = makeQR(kbText, 300);
+    document.getElementById("qr-pp").src = makeQR(ppText, 300);
 
-    function setTextQr(){
-      elKb.src = makeQrSrc(kbText);
-      elPp.src = makeQrSrc(ppText);
-    }
-
-    // URL QR: 페이지 URL을 입력하면 두 QR 모두 그 URL로 변경 (스캔 시 해당 페이지로 이동)
-    function setUrlQr(url){
-      if(!url) return;
-      elKb.src = makeQrSrc(url);
-      elPp.src = makeQrSrc(url);
-    }
-
-    // 초기화: 텍스트 QR 표시
-    setTextQr();
-
-    // 복사 버튼 로직
-    function showToast(text){
-      const t = document.getElementById('toaster');
-      t.textContent = text;
-      t.classList.add('show');
-      clearTimeout(t._timer);
-      t._timer = setTimeout(()=> t.classList.remove('show'), 1600);
-    }
-
-    async function copyText(text){
-      try{
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          await navigator.clipboard.writeText(text);
-        } else {
+    // 복사 버튼 처리
+    document.querySelectorAll('button.copy').forEach(btn=>{
+      btn.addEventListener('click', async (e) => {
+        const txt = btn.getAttribute('data-copy') || '';
+        if (!txt) return;
+        try {
+          // navigator.clipboard 사용 (HTTPS 또는 로컬 파일에서 동작)
+          await navigator.clipboard.writeText(txt);
+          showToast("복사되었습니다!");
+        } catch(err) {
+          // 실패 시 대체: 텍스트영역 생성해서 복사
           const ta = document.createElement('textarea');
-          ta.value = text; document.body.appendChild(ta);
-          ta.select(); document.execCommand('copy');
+          ta.value = txt;
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            showToast("복사되었습니다!");
+          } catch(e2) {
+            showToast("복사에 실패했습니다. 수동으로 선택하여 복사하세요.");
+          }
           document.body.removeChild(ta);
         }
-        showToast('복사되었습니다');
-        return true;
-      }catch(e){
-        showToast('복사에 실패했습니다');
-        return false;
-      }
-    }
-
-    document.querySelectorAll('button.copy').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const id = btn.getAttribute('data-target');
-        const val = document.getElementById(id).value.trim();
-        await copyText(val);
       });
     });
 
-    // 컨트롤 버튼
-    document.getElementById('apply-url').addEventListener('click', ()=>{
-      const url = document.getElementById('page-url').value.trim();
-      if(!url){ showToast('URL을 입력하세요'); return; }
-      setUrlQr(url);
-      showToast('QR이 페이지 URL로 변경되었습니다');
-    });
-    document.getElementById('use-text').addEventListener('click', ()=>{ setTextQr(); showToast('텍스트 QR로 복원되었습니다'); });
-
-    // 안내: 페이지를 호스팅한 뒤 '웹페이지 URL' 칸에 올린 페이지의 URL을 넣으면
-    // 스캔할 때 바로 해당 페이지로 이동합니다. (택시 고객이 스캔하면 결제 정보 페이지로 연결 가능)
-  </script>
-</body>
-</html>
+    // 토스트(간단한 피드백)
+    const toast = document.getElementById('toast');
+    let toastTimer = null;
+    function showToast(msg){
+      toa
